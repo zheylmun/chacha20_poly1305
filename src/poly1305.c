@@ -1,6 +1,7 @@
 #include "poly1305.h"
 #include <string.h> // memset, memcpy
 
+/** @brief Load a 32-bit word from 4 bytes in little-endian order. */
 static uint32_t load32_le(const uint8_t *p)
 {
     return (uint32_t)p[0]
@@ -9,6 +10,7 @@ static uint32_t load32_le(const uint8_t *p)
          | ((uint32_t)p[3] << 24);
 }
 
+/** @brief Store a 32-bit word as 4 bytes in little-endian order. */
 static void store32_le(uint8_t *p, uint32_t v)
 {
     p[0] = (uint8_t)(v);
@@ -47,6 +49,19 @@ void poly1305_init(poly1305_ctx *ctx, const uint8_t key[32])
     ctx->buf_len = 0;
 }
 
+/**
+@brief Process one message block into the Poly1305 accumulator.
+
+Reads @p block_len bytes as a little-endian integer, sets a high bit at
+position 8*block_len (controlled by @p hibit — 1 for full blocks, 0 for
+the final partial block), adds the result to the accumulator, multiplies
+by `r`, and partially reduces modulo 2^130 - 5.
+
+@param[in,out] ctx       Poly1305 context with accumulator and key.
+@param[in]     block     Message block (up to 16 bytes).
+@param[in]     block_len Number of valid bytes in @p block (1..16).
+@param[in]     hibit     High-bit flag: 1 for full blocks, 0 for final partial.
+**/
 static void poly1305_process_block(poly1305_ctx *ctx, const uint8_t *block,
                                    size_t block_len, uint32_t hibit)
 {
