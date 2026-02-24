@@ -12,6 +12,7 @@ add_compile_options(-Wall -Wextra -Wpedantic -Werror)
 add_library(chacha20_poly1305 STATIC
     src/chacha20.c
     src/poly1305.c
+    src/chacha20_poly1305.c
 )
 
 target_include_directories(chacha20_poly1305
@@ -26,7 +27,7 @@ enable_testing()
 add_library(unity STATIC Unity/src/unity.c)
 target_include_directories(unity PUBLIC Unity/src)
 
-foreach(test_name chacha20 poly1305)
+foreach(test_name chacha20 poly1305 aead)
     add_executable(test_${test_name} test/test_${test_name}.c)
     target_link_libraries(test_${test_name} chacha20_poly1305 unity)
     target_include_directories(test_${test_name} PRIVATE src)
