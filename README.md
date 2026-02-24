@@ -4,6 +4,69 @@ This library implements the ChaCha20 stream cipher and Poly1305 message authenti
 It provides a high-level API for authenticated encryption and decryption using the ChaCha20-Poly1305 AEAD construction.
 It provides only the high-level API, and does not expose the underlying primitives (e.g. quarter round, block function) as public APIs.
 
+## ChaCha20-Poly1305 AEAD Construction
+
+Authenticated Encryption with Associated Data (AEAD) combining ChaCha20 for
+encryption and Poly1305 for authentication.
+Provides confidentiality for the plaintext and integrity for both the plaintext
+and additional authenticated data (AAD).
+The only public API of this library.
+
+### Parameters
+
+```mermaid
+block-beta
+  columns 3
+  A["Key (32 bytes)"] B["Nonce (12 bytes)"] C["Tag (16 bytes)"]
+```
+
+- **Key**: 256-bit secret key, must be random and unique per context.
+- **Nonce**: 96-bit value, must be unique per (key, message) pair.
+- **Tag**: 128-bit authentication tag produced during encryption and
+  verified during decryption.
+- **AAD**: Arbitrary-length additional data authenticated but not encrypted
+  (may be empty).
+
+### Encryption
+
+```mermaid
+flowchart TB
+  KeyGen["ChaCha20 block (counter=0) → Poly1305 one-time key"]
+  Enc["ChaCha20 encrypt (counter=1) → ciphertext"]
+  Mac["Poly1305 MAC over padded AAD + ciphertext + lengths → tag"]
+  KeyGen --> Enc --> Mac
+```
+
+### Decryption
+
+```mermaid
+flowchart TB
+  KeyGen["ChaCha20 block (counter=0) → Poly1305 one-time key"]
+  Mac["Poly1305 MAC over padded AAD + ciphertext + lengths → expected tag"]
+  Verify{"Constant-time\ntag compare"}
+  Dec["ChaCha20 decrypt (counter=1) → plaintext"]
+  Fail["Zero output, return error"]
+  KeyGen --> Mac --> Verify
+  Verify -- "match" --> Dec
+  Verify -- "mismatch" --> Fail
+```
+
+### MAC Input Construction
+
+The Poly1305 MAC is computed over a specific padded layout:
+
+```mermaid
+block-beta
+  columns 1
+  A["AAD (aad_len bytes)"]
+  B["Zero padding to 16-byte boundary"]
+  C["Ciphertext (ct_len bytes)"]
+  D["Zero padding to 16-byte boundary"]
+  E["aad_len as 64-bit LE || ct_len as 64-bit LE"]
+```
+
+Reference: [RFC 7539-section2.8](https://datatracker.ietf.org/doc/html/rfc7539#section-2.8)
+
 ## Chacha20 Stream Cypher Algorithm
 
 ChaCha20 generates a keystream from a 256-bit key, 32-bit block counter,
