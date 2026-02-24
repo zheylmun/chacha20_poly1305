@@ -96,17 +96,51 @@ flowchart LR
 #include <stdint.h>
 #include <stddef.h>
 
-/** Quarter round operation (exposed for testing). */
+/**
+@brief Apply the ChaCha20 quarter round to four words in place.
+
+Exposed for testing; not part of the public API.
+
+@param[in,out] a First word.
+@param[in,out] b Second word.
+@param[in,out] c Third word.
+@param[in,out] d Fourth word.
+**/
 void chacha20_quarter_round(uint32_t *a, uint32_t *b,
                             uint32_t *c, uint32_t *d);
 
-/* Compute one 64-byte keystream block. */
+/**
+@brief Compute one 64-byte keystream block.
+
+Initializes the 4x4 state from the key, counter, and nonce, runs 20
+rounds, adds the original state, and returns the result as 16 uint32_t
+words.  Caller serializes to bytes via little-endian store.
+
+@param[out] out     16-word output block.
+@param[in]  key     32-byte encryption key.
+@param[in]  counter 32-bit block counter.
+@param[in]  nonce   12-byte nonce.
+**/
 void chacha20_block(uint32_t out[16],
                     const uint8_t key[32],
                     uint32_t counter,
                     const uint8_t nonce[12]);
 
-/* XOR plaintext with keystream starting at the given counter value. */
+/**
+@brief XOR input with keystream to produce output.
+
+Generates keystream blocks starting at @p counter and XORs each byte
+of @p input.  Works for both encryption and decryption (XOR is its own
+inverse).  Handles a final partial block when @p len is not a multiple
+of 64.
+
+@param[out] output  Output buffer, at least @p len bytes.
+@param[in]  input   Input buffer, @p len bytes.
+@param[in]  len     Number of bytes to process.
+@param[in]  key     32-byte encryption key.
+@param[in]  nonce   12-byte nonce.
+@param[in]  counter Initial block counter value.
+**/
 void chacha20_encrypt(uint8_t *output,
                       const uint8_t *input,
                       size_t len,
