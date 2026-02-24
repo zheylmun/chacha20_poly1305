@@ -1,6 +1,7 @@
 #include "chacha20.h"
 #include <string.h> // memcpy
 
+/** @brief Load a 32-bit word from 4 bytes in little-endian order. */
 static uint32_t load32_le(const uint8_t *p)
 {
     return (uint32_t)p[0]
@@ -9,6 +10,7 @@ static uint32_t load32_le(const uint8_t *p)
          | ((uint32_t)p[3] << 24);
 }
 
+/** @brief Store a 32-bit word as 4 bytes in little-endian order. */
 static void store32_le(uint8_t *p, uint32_t v)
 {
     p[0] = (uint8_t)(v);
@@ -17,6 +19,7 @@ static void store32_le(uint8_t *p, uint32_t v)
     p[3] = (uint8_t)(v >> 24);
 }
 
+/** @brief Rotate a 32-bit word left by @p n bits. */
 static uint32_t rotl32(uint32_t v, int n)
 {
     return (v << n) | (v >> (32 - n));
