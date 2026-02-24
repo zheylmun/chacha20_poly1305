@@ -3,6 +3,7 @@
 #include "poly1305.h"
 #include <string.h>
 
+/** @brief Store a 64-bit word as 8 bytes in little-endian order. */
 static void store64_le(uint8_t *p, uint64_t v)
 {
     p[0] = (uint8_t)(v);
@@ -15,6 +16,7 @@ static void store64_le(uint8_t *p, uint64_t v)
     p[7] = (uint8_t)(v >> 56);
 }
 
+/** @brief Store a 32-bit word as 4 bytes in little-endian order. */
 static void store32_le(uint8_t *p, uint32_t v)
 {
     p[0] = (uint8_t)(v);
@@ -23,6 +25,19 @@ static void store32_le(uint8_t *p, uint32_t v)
     p[3] = (uint8_t)(v >> 24);
 }
 
+/**
+@brief Compute the Poly1305 authentication tag for the AEAD construction.
+
+Feeds padded AAD, padded ciphertext, and the two 64-bit LE lengths into
+a Poly1305 instance keyed with the one-time key.
+
+@param[out] tag     16-byte output tag.
+@param[in]  aad     Additional authenticated data (may be NULL if @p aad_len is 0).
+@param[in]  aad_len Length of @p aad in bytes.
+@param[in]  ct      Ciphertext (may be NULL if @p ct_len is 0).
+@param[in]  ct_len  Length of @p ct in bytes.
+@param[in]  otk     32-byte Poly1305 one-time key.
+**/
 static void poly1305_compute_tag(uint8_t tag[16],
                                  const uint8_t *aad, size_t aad_len,
                                  const uint8_t *ct,  size_t ct_len,
@@ -91,7 +106,17 @@ int chacha20_poly1305_encrypt(
     return 0;
 }
 
-/* Constant-time comparison */
+/**
+@brief Constant-time comparison of two byte buffers.
+
+Compares all @p len bytes regardless of where a difference occurs,
+preventing timing side-channels.
+
+@param[in] a   First buffer.
+@param[in] b   Second buffer.
+@param[in] len Number of bytes to compare.
+@return 0 if equal, nonzero if different.
+**/
 static int ct_compare(const uint8_t *a, const uint8_t *b, size_t len)
 {
     uint8_t diff = 0;
