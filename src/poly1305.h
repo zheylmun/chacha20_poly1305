@@ -87,8 +87,41 @@ typedef struct {
     size_t   buf_len;  /* bytes in partial buffer */
 } poly1305_ctx;
 
+/**
+@brief Initialize a Poly1305 context with a one-time key.
+
+Splits the 32-byte key into the clamped multiplier `r` and the pad `s`,
+converts `r` to radix 2^26, and zeroes the accumulator.
+
+@param[out] ctx Context to initialize.
+@param[in]  key 32-byte one-time key (first 16 bytes = r, last 16 = s).
+                Must not be reused for another message.
+**/
 void poly1305_init(poly1305_ctx *ctx, const uint8_t key[32]);
+
+/**
+@brief Feed message bytes into the Poly1305 computation.
+
+May be called repeatedly with successive chunks of the message.
+Internally buffers partial blocks until a full 16-byte block is
+available for processing.
+
+@param[in,out] ctx Context (must have been initialized with poly1305_init).
+@param[in]     msg Message bytes to authenticate.
+@param[in]     len Number of bytes in @p msg.
+**/
 void poly1305_update(poly1305_ctx *ctx, const uint8_t *msg, size_t len);
+
+/**
+@brief Finalize the Poly1305 computation and output the tag.
+
+Processes any remaining buffered bytes as a final partial block (with a
+different high-bit convention), fully reduces the accumulator, adds the
+pad, and writes the 16-byte tag.  The context is wiped after use.
+
+@param[in,out] ctx Context to finalize (wiped on return).
+@param[out]    tag 16-byte output authentication tag.
+**/
 void poly1305_finish(poly1305_ctx *ctx, uint8_t tag[16]);
 
 #endif
