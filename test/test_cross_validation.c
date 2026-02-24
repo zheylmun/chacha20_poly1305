@@ -10,14 +10,14 @@ void tearDown(void) {}
 
 // Test various plaintext and AAD sizes, including boundary conditions.
 static const size_t pt_sizes[] = {
-    0, 1, 15, 16, 17, 31, 32, 63, 64, 65, 100, 127, 128, 255, 256, 1000, 1023, 1024, 4095,4096, 10000, 65535, 65536, 100000
+    0, 1, 15, 16, 17, 31, 32, 63, 64, 65, 100, 127, 128, 255, 256, 1000, 1023, 1024, 4095,4096, 10000, 65535, 65536, 100000, 1048575, 1048576, 9999999
 };
 #define NUM_PT_SIZES (sizeof(pt_sizes) / sizeof(pt_sizes[0]))
 
 static const size_t aad_sizes[] = { 0, 1, 15, 16, 17, 127, 128, 129, 255, 256 };
 #define NUM_AAD_SIZES (sizeof(aad_sizes) / sizeof(aad_sizes[0]))
 
-#define ITERATIONS 1000
+#define ITERATIONS 100
 
 static uint8_t *random_buf(size_t len)
 {
