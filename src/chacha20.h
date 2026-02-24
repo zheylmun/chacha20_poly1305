@@ -41,10 +41,10 @@ little-endian bytes.
 
 ```mermaid
 flowchart LR
-  Init["Initialize\n4x4 state from\nkey, counter, nonce"]
-  Rounds["20 rounds\n(10x column QR +\n10x diagonal QR)"]
-  Add["Add original\nstate back"]
-  Ser["Serialize to\n64 LE bytes"]
+  Init["Initialize 4x4 state from key, counter, nonce"]
+  Rounds["20 rounds (10x column QR + 10x diagonal QR)"]
+  Add["Add original state back"]
+  Ser["Serialize to 64 LE bytes"]
   Init --> Rounds --> Add --> Ser
 ```
 
@@ -82,7 +82,7 @@ be partial.
 ```mermaid
 flowchart LR
   subgraph "For each 64-byte chunk"
-    Block["chacha20_block\n(key, counter++, nonce)"]
+    Block["chacha20_block (key, counter++, nonce)"]
     XOR["output = input XOR keystream"]
     Block --> XOR
   end
