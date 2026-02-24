@@ -33,3 +33,20 @@ foreach(test_name chacha20 poly1305 aead)
     target_include_directories(test_${test_name} PRIVATE src)
     add_test(NAME test_${test_name} COMMAND test_${test_name})
 endforeach()
+
+# --- Cross-validation test (requires libsodium) ---
+
+find_package(PkgConfig QUIET)
+if(PkgConfig_FOUND)
+    pkg_check_modules(SODIUM QUIET IMPORTED_TARGET libsodium)
+endif()
+
+if(SODIUM_FOUND)
+    message(STATUS "libsodium found -- building cross-validation test")
+    add_executable(test_cross_validation test/test_cross_validation.c)
+    target_link_libraries(test_cross_validation
+        chacha20_poly1305 unity PkgConfig::SODIUM)
+    add_test(NAME test_cross_validation COMMAND test_cross_validation)
+else()
+    message(WARNING "libsodium not found -- skipping cross-validation test")
+endif()
