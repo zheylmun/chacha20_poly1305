@@ -1,5 +1,5 @@
 #include "poly1305.h"
-#include <string.h>
+#include <string.h> // memset, memcpy
 
 static uint32_t load32_le(const uint8_t *p)
 {
