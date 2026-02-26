@@ -3,6 +3,11 @@
 This library implements the ChaCha20 stream cipher and Poly1305 message authentication code (MAC) as defined in [RFC 7539](https://datatracker.ietf.org/doc/html/rfc7539).
 It provides a high-level API for authenticated encryption and decryption using the ChaCha20-Poly1305 AEAD construction.
 It provides only the high-level API, and does not expose the underlying primitives (e.g. quarter round, block function) as public APIs.
+> [!WARNING]
+> This library is intended for educational purposes and should not be used in production environments without thorough review and validation.
+> Further development and support is not planned.
+> It has not been audited and may contain vulnerabilities.
+> Use at your own risk.
 
 ## ChaCha20-Poly1305 AEAD Construction
 
